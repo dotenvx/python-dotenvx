@@ -1,7 +1,7 @@
 __title__ = "python-dotenvx"
 __description__ = "[dotenvx.com] a better dotenv–from the creator of `dotenv`"
 __url__ = "https://github.com/dotenvx/python-dotenvx"
-__version__ = "0.1.2"
+__version__ = "0.2.0"
 __author__ = "dotenv"
 __author_email__ = "mot@dotenvx.com"
 __license__ = "BSD-3-Clause"
