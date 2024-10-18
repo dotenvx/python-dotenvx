@@ -1,2 +1,2 @@
 def load_dotenvx():
-  print("loading dotenvx! implement")
+  raise NotImplementedError("go to [github.com/dotenvx/dotenvx] and follow python directions there")
