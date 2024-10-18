@@ -1,2 +1,1 @@
-def hello_world():
-    return "Hello, World!"
+from .main import load_dotenvx
