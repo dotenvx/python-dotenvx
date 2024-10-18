@@ -22,9 +22,6 @@ uninstall_local:
 install_local:
 	pip install .
 
-test: install_local
-	python -m unittest -v dotenvx.test_x
-
 release: build
 	twine check dist/*
 	twine upload dist/*
