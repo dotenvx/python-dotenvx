@@ -18,12 +18,12 @@
 &nbsp;
 
 
-### Quickstart [![PyPI version](https://badge.fury.io/py/python-dotenvx.svg)](http://badge.fury.io/py/python-dotenvx) 
+### Quickstart [![PyPI version](https://badge.fury.io/py/python-dotenvx.svg)](http://badge.fury.io/py/python-dotenvx)
 
 Install and use it in code just like `python-dotenv`.
 
 ```sh
-pip install python-dotenv
+pip install python-dotenvx
 ```
 ```python
 # main.py
