@@ -39,5 +39,7 @@ setup(
     'dotenvx'
     ],
     install_requires=[
+        'eciespy>=0.4.3',
+        'python-dotenv>=1.0.1',
     ],
 )
