@@ -24,6 +24,7 @@ setup(
     license=src['__license__'],
     author=src['__author__'],
     author_email=src['__author_email__'],
+    include_package_data=True,
     packages=find_packages('src'),
     package_dir={'': 'src'},
     url=src['__url__'],
