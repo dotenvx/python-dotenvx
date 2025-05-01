@@ -61,7 +61,5 @@ setup(
     ],
     install_requires=[
     ],
-    package_data={'dotenvx': ['bin/dotenvx']},
-    include_package_data=True,
     cmdclass={'install': InstallBinary},
 )
