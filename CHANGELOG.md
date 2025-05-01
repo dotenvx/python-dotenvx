@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [Unreleased](https://github.com/dotenvx/python-dotenvx/compare/v0.2.4...main)
+## [Unreleased](https://github.com/dotenvx/python-dotenvx/compare/v0.2.5...main)
+
+## [0.2.5](https://github.com/dotenvx/dotenvx/compare/v0.2.4...v0.2.5)
+
+### Added
+
+* Add additional bin/* candidate to check for dotenvx binary
 
 ## [0.2.4](https://github.com/dotenvx/dotenvx/compare/v0.2.3...v0.2.4)
 

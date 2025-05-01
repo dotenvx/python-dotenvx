@@ -30,8 +30,11 @@ def get():
     return output.stdout.strip()
 
 def binary():
-    local_bin = os.path.join(os.path.dirname(package_path), "bin", "dotenvx")
-    candidates = [local_bin, shutil.which("dotenvx")]
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "bin", "dotenvx"),  # package-local
+        os.path.join(os.getcwd(), "bin", "dotenvx"),                # project-local
+        shutil.which("dotenvx")                                     # global/system
+    ]
 
     for candidate in candidates:
         if candidate and os.path.isfile(candidate) and os.access(candidate, os.X_OK):
