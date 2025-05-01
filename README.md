@@ -26,20 +26,21 @@ Install and use it in code just like `python-dotenv`.
 pip install python-dotenvx
 ```
 
-Then run `dotenvx-postinstall` to install the `dotenvx` binary.
+Then run `dotenvx-postinstall` to install the `dotenvx` binary (python-dotenvx is a wrapper).
 
 ```sh
 dotenvx-postinstall
 ```
 
+Then use it in code.
+
 ```python
 # main.py
 import os
 from dotenvx import load_dotenvx
-load_dotenvx()  # take environment variables from .env.
+load_dotenvx() # take environment variables from .env.
 
 print(os.getenv("S3_BUCKET"))
 ```
 
 &nbsp;
-
