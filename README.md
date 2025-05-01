@@ -33,6 +33,9 @@ dotenvx-postinstall
 
 # or to specify the os-arch – useful for building binaries to a specific target such as linux-x86_64 on aws lambda
 dotenvx-postinstall --os linux --arch x86_64
+
+# you might also find you need to specify PYTHONPATH depend on how/where dotenvx installs to
+PYTHONPATH=. bin/dotenvx-postinstall --os linux --arch x86_64
 ```
 
 Then use it in code.
