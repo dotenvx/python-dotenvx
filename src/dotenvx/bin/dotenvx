@@ -1,0 +1,15 @@
+#!/bin/sh
+echo "📦 Self-boostrapping dotenvx binary..."
+
+# Directory of this script (e.g. site-packages/dotenvx/bin)
+SELF_PATH="$(cd "$(dirname "$0")" && pwd)"
+TARGET="$SELF_PATH/dotenvx"
+
+# Install binary
+curl -sfS "https://dotenvx.sh?directory=$SELF_PATH" | sh
+
+# Make sure it's executable
+chmod +x "$TARGET"
+
+# Re-exec with original arguments
+exec "$TARGET" "$@"

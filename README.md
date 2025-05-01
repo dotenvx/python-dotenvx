@@ -25,6 +25,13 @@ Install and use it in code just like `python-dotenv`.
 ```sh
 pip install python-dotenvx
 ```
+
+Then run `dotenvx-postinstall` to install the `dotenvx` binary.
+
+```sh
+dotenvx-postinstall
+```
+
 ```python
 # main.py
 import os

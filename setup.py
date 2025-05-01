@@ -1,7 +1,5 @@
 import os
-import subprocess
 from setuptools import setup, find_packages
-from setuptools.command.install import install
 
 src = {}
 dir = os.path.abspath(os.path.dirname(__file__))
@@ -16,25 +14,6 @@ def read_files(files):
     return "\n".join(data)
 
 readme = read_files(['README.md', 'CHANGELOG.md'])
-
-class InstallBinary(install):
-    def run(self):
-        print("installing dotenvx........")
-
-        bin_dir = os.path.join(dir, 'src', 'dotenvx', 'bin')
-        os.makedirs(bin_dir, exist_ok=True)
-
-        # install dotenvx binary using your install script into bin/
-        subprocess.run(
-            ['sh', '-c', f'curl -sfS "https://dotenvx.sh?directory={bin_dir}" | sh'],
-            check=True,
-            stdout=None,
-            stderr=None
-        )
-
-        print("installed dotenvx........")
-
-        super().run()
 
 setup(
     name='python-dotenvx',
@@ -61,5 +40,9 @@ setup(
     ],
     install_requires=[
     ],
-    cmdclass={'install': InstallBinary},
+    entry_points={
+        'console_scripts': [
+            'dotenvx-postinstall=dotenvx.main:postinstall',
+        ],
+    }
 )
