@@ -30,6 +30,9 @@ Then run `dotenvx-postinstall` to install the `dotenvx` binary (python-dotenvx i
 
 ```sh
 dotenvx-postinstall
+
+# or to specify the os-arch – useful for building binaries to a specific target such as linux-x86_64 on aws lambda
+dotenvx-postinstall --os linux --arch x86_64
 ```
 
 Then use it in code.

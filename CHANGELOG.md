@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [Unreleased](https://github.com/dotenvx/python-dotenvx/compare/v0.2.3...main)
+## [Unreleased](https://github.com/dotenvx/python-dotenvx/compare/v0.2.4...main)
+
+## [0.2.4](https://github.com/dotenvx/dotenvx/compare/v0.2.3...v0.2.4)
+
+### Added
+
+* Add the ability to specify the `os` and `arch` on `dotenvx-postinstall`
 
 ## [0.2.3](https://github.com/dotenvx/dotenvx/compare/v0.2.2...v0.2.3)
 

@@ -2,6 +2,7 @@ import os
 import json
 import shutil
 import subprocess
+import argparse
 
 from dotenvx import __file__ as package_path
 
@@ -49,12 +50,23 @@ def is_stub_file(path, max_stub_size=1024):
         return False
 
 def postinstall():
-    bin_dir = os.path.join(os.path.dirname(package_path), "bin")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--os", help="Override OS", default="")
+    parser.add_argument("--arch", help="Override architecture", default="")
+    args = parser.parse_args()
+
+    bin_dir = os.path.join(os.path.dirname(__file__), "bin")
     os.makedirs(bin_dir, exist_ok=True)
+
+    url = f"https://dotenvx.sh?directory={bin_dir}"
+    if args.os:
+        url += f"&os={args.os}"
+    if args.arch:
+        url += f"&arch={args.arch}"
 
     try:
         subprocess.run(
-            ["sh", "-c", f"curl -sfS https://dotenvx.sh?directory={bin_dir} | sh"],
+            ["sh", "-c", f'curl -sfS "{url}" | sh'],
             check=True
         )
     except subprocess.CalledProcessError as e:
