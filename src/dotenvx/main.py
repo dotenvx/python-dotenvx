@@ -1,36 +1,52 @@
 import os
+import json
+import shutil
 import subprocess
 
 from dotenvx import __file__ as package_path
 
-def load_dotenvx():
-    binary = dotenvx_binary()
-    try:
-        return dotenvx_get(binary)
-    except FileNotFoundError:
-        print("⚠️ 'dotenvx' binary not found. Attempting to install it now...")
-        postinstall()
-        return dotenvx_get(binary)
+ERROR_MISSING_BINARY = "[MISSING_BINARY] missing dotenvx binary\n[MISSING_BINARY] https://github.com/dotenvx/dotenvx/issues/576"
 
-def dotenvx_get(binary):
-    result = subprocess.run(
-        [binary, "get", "-pp"],
+def load_dotenvx():
+    output = get()
+
+    try:
+        parsed = json.loads(output)
+        for key, value in parsed.items():
+            os.environ[key] = value
+        return parsed
+    except Exception as e:
+        raise RuntimeError(f"Failed to parse dotenvx output: {e}")
+
+def get():
+    binpath = binary()
+    output = subprocess.run(
+        [binpath, "get", "-pp"],
         capture_output=True,
         text=True,
         check=True
     )
-    return result.stdout.strip()
+    return output.stdout.strip()
 
-def dotenvx_binary():
+def binary():
     local_bin = os.path.join(os.path.dirname(package_path), "bin", "dotenvx")
-    if os.path.isfile(local_bin) and os.access(local_bin, os.X_OK):
-        return local_bin
+    candidates = [local_bin, shutil.which("dotenvx")]
 
-    system_bin = shutil.which("dotenvx")
-    if system_bin:
-        return system_bin
+    for candidate in candidates:
+        if candidate and os.path.isfile(candidate) and os.access(candidate, os.X_OK):
+            if is_stub_file(candidate):
+                continue
+            return candidate
 
-    raise FileNotFoundError("dotenvx binary not found locally or in PATH")
+    print("[MISSING_BINARY] missing dotenvx binary")
+    print("[MISSING_BINARY] https://github.com/dotenvx/dotenvx/issues/576")
+    raise SystemExit(1)
+
+def is_stub_file(path, max_stub_size=1024):
+    try:
+        return os.path.getsize(path) < max_stub_size
+    except OSError:
+        return False
 
 def postinstall():
     bin_dir = os.path.join(os.path.dirname(package_path), "bin")
@@ -42,5 +58,4 @@ def postinstall():
             check=True
         )
     except subprocess.CalledProcessError as e:
-        print("❌ Failed to install dotenvx binary.")
         raise SystemExit(e.returncode)
