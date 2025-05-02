@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
-## [Unreleased](https://github.com/dotenvx/python-dotenvx/compare/v0.2.6...main)
+## [Unreleased](https://github.com/dotenvx/python-dotenvx/compare/v0.3.0...main)
+
+## [0.3.0](https://github.com/dotenvx/dotenvx/compare/v0.2.6...v0.3.0)
+
+### Added
+
+* Add `dotenv_path` and `override` arguments ([#4](https://github.com/dotenvx/python-dotenvx/pull/4))
 
 ## [0.2.6](https://github.com/dotenvx/dotenvx/compare/v0.2.5...v0.2.6)
 
