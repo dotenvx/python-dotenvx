@@ -8,21 +8,37 @@ from dotenvx import __file__ as package_path
 
 ERROR_MISSING_BINARY = "[MISSING_BINARY] missing dotenvx binary\n[MISSING_BINARY] https://github.com/dotenvx/dotenvx/issues/576"
 
-def load_dotenvx():
-    output = get()
+def load_dotenvx(
+        dotenv_path=None,
+        override=False
+):
+    output = dotenvx_get(
+        dotenv_path=dotenv_path,
+        override=override
+    )
 
     try:
         parsed = json.loads(output)
         for key, value in parsed.items():
             os.environ[key] = value
-        return parsed
+        return True
     except Exception as e:
         raise RuntimeError(f"Failed to parse dotenvx output: {e}")
 
-def get():
+def dotenvx_get(
+        dotenv_path=None,
+        override=False
+):
     binpath = binary()
+    cmd = [binpath, "get", "-pp"]
+
+    if dotenv_path:
+        cmd += ["-f", dotenv_path]
+    if override:
+        cmd.append("--overload")
+
     output = subprocess.run(
-        [binpath, "get", "-pp"],
+        cmd,
         capture_output=True,
         text=True,
         check=True
