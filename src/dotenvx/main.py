@@ -61,7 +61,7 @@ def postinstall():
     bin_dir = os.path.join(os.path.dirname(__file__), "bin")
     os.makedirs(bin_dir, exist_ok=True)
 
-    url = f"https://dotenvx.sh?directory={bin_dir}"
+    url = f"https://dotenvx.sh?directory={bin_dir}&force=true"
     if args.os:
         url += f"&os={args.os}"
     if args.arch:
