@@ -21,7 +21,7 @@ def load_dotenvx(
         parsed = json.loads(output)
         for key, value in parsed.items():
             os.environ[key] = value
-        return True
+        return parsed
     except Exception as e:
         raise RuntimeError(f"Failed to parse dotenvx output: {e}")
 
