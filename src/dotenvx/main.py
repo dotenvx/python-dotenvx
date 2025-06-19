@@ -6,7 +6,7 @@ import base64
 import os
 
 def decrypt_value(value: str, private_key: str) -> str:
-    private_key       = ecies.PrivateKey.from_hex(private_key)
+    private_key       = ecies.PrivateKey.from_hex(curve='secp256k1', sk_hex=private_key)
     base64_ciphertext = value.lstrip('encrypted:')
     ciphertext        = base64.b64decode(base64_ciphertext)
     decrypted_value   = ecies.decrypt(private_key.to_hex(), ciphertext)
