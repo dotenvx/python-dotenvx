@@ -1,3 +1,38 @@
 [build-system]
-requires = ["setuptools>=61.0.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "python-dotenvx"
+version = "2.0.0"
+description = "A better dotenv, backed by dotenvx Rust primitives"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "BSD-3-Clause" }
+authors = [
+  { name = "dotenv", email = "mot@dotenvx.com" }
+]
+keywords = [
+  "environment",
+  "environment variables",
+  "env",
+  "dotenv",
+  "python",
+  "dotenvx"
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Rust",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://dotenvx.com"
+Repository = "https://github.com/dotenvx/python-dotenvx"
+
+[tool.maturin]
+python-source = "src"
+module-name = "dotenvx._native"
+features = ["pyo3/extension-module"]

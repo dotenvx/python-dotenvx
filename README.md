@@ -1,12 +1,3 @@
-> [!IMPORTANT]
->
-> Warning: work in progress. until complete, please use [github.com/dotenvx/dotenvx](https://github.com/dotenvx/dotenvx) directly.
->
-> see [python examples](https://dotenvx.com/docs/languages/python)
->
-
----
-
 [![dotenvx](https://dotenvx.com/better-banner.png)](https://dotenvx.com)
 
 *a better dotenv*–from the creator of [`dotenv`](https://github.com/motdotla/dotenv).
@@ -26,27 +17,28 @@ Install and use it in code just like `python-dotenv`.
 pip install python-dotenvx
 ```
 
-Then run `dotenvx-postinstall` to install the `dotenvx` binary (python-dotenvx is a wrapper).
-
-```sh
-dotenvx-postinstall
-
-# or to specify the os-arch – useful for building binaries to a specific target such as linux-x86_64 on aws lambda
-dotenvx-postinstall --os linux --arch x86_64
-
-# you might also find you need to specify PYTHONPATH depend on how/where dotenvx installs to
-PYTHONPATH=. bin/dotenvx-postinstall --os linux --arch x86_64
-```
-
-Then use it in code.
+The wheel includes native dotenvx Rust primitives. No dotenvx executable or
+post-install download is required.
 
 ```python
 # main.py
 import os
-from dotenvx import load_dotenvx
-load_dotenvx() # take environment variables from .env.
+from dotenvx import load_dotenv
+
+load_dotenv()  # take environment variables from .env
 
 print(os.getenv("S3_BUCKET"))
 ```
+
+You can also parse values without changing the environment:
+
+```python
+from dotenvx import dotenv_values
+
+values = dotenv_values(".env")
+```
+
+Encrypted values are decrypted using `DOTENV_PRIVATE_KEY` from the environment
+or a neighboring `.env.keys` file.
 
 &nbsp;
