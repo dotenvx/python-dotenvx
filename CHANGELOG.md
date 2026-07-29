@@ -31,6 +31,12 @@ All notable changes to this project will be documented in this file. See [standa
 - Remove the external dotenvx executable dependency.
 - Remove the legacy setuptools build configuration.
 
+### Security
+
+- Upgrade PyO3 to 0.29.0, resolving its known iterator out-of-bounds read,
+  missing closure synchronization bound, and string conversion buffer-overflow
+  advisories.
+
 ## [0.3.0](https://github.com/dotenvx/dotenvx/compare/v0.2.6...v0.3.0)
 
 ### Added

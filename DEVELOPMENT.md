@@ -44,6 +44,26 @@ cargo check
 The `dotenvx-primitives` dependency version is independent. Change it only
 when this package should embed a newer primitives release.
 
+## Security audits
+
+Audit Rust dependencies in `Cargo.lock` with RustSec:
+
+```sh
+cargo install cargo-audit --locked
+cargo audit
+```
+
+Python's equivalent of `npm audit` is `pip-audit`:
+
+```sh
+python -m pip install pip-audit
+pip-audit .
+```
+
+This project currently has no runtime Python dependencies, but `pip-audit`
+should still be run whenever Python dependencies are added. Native dependencies
+embedded in the wheel are covered by `cargo audit`, not `pip-audit`.
+
 ## Publishing
 
 Git tags matching `v*` trigger wheel builds for Linux, macOS, and Windows and
