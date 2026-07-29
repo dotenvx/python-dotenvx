@@ -6,11 +6,30 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [2.0.0](https://github.com/dotenvx/python-dotenvx/compare/v0.3.0...v2.0.0)
 
+### Added
+
+- Add `load_dotenv`, `dotenv_values`, and `find_dotenv` with the same public
+  arguments and defaults as `python-dotenv`.
+- Add native dotenv parsing, expansion, command substitution, and decryption
+  through `dotenvx-primitives` 2.1.1.
+- Add automatic decryption using `DOTENV_PRIVATE_KEY` environment variables
+  or a neighboring `.env.keys` file.
+- Add conformance tests against `python-dotenv` 1.2.2, plus dotenvx encrypted
+  loading behavior.
+
 ### Changed
 
-- Package dotenvx Rust primitives directly inside platform wheels.
-- Load dotenv files without downloading or invoking the dotenvx CLI.
-- Add `load_dotenv`, `dotenv_values`, and `find_dotenv` compatibility APIs.
+- Package the Rust implementation as a PyO3 native extension inside each
+  Python wheel.
+- Build and publish Linux, macOS, and Windows wheels using Maturin.
+- Use Python ABI3 wheels compatible with CPython 3.8 and newer.
+- Keep `load_dotenvx` as a backward-compatible API returning parsed values.
+
+### Removed
+
+- Remove the `dotenvx-postinstall` command and runtime dotenvx CLI download.
+- Remove the external dotenvx executable dependency.
+- Remove the legacy setuptools build configuration.
 
 ## [0.3.0](https://github.com/dotenvx/dotenvx/compare/v0.2.6...v0.3.0)
 
