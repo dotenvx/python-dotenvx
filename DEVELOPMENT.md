@@ -23,17 +23,26 @@ The resulting wheel is written to `target/wheels`.
 
 ## Version changes
 
-Keep these versions synchronized:
+`Cargo.toml` is the single source of truth for the package version:
 
-- `pyproject.toml`: Python distribution version
-- `Cargo.toml`: native extension version
-- `src/dotenvx/__version__.py`: Python runtime version
+```toml
+[package]
+version = "2.0.1"
+```
 
-Unlike npm, Python packaging has no built-in `npm version patch` equivalent.
-Update all three files to the chosen semantic version before tagging.
+Maturin uses that value for the PyPI distribution because `pyproject.toml`
+declares `version` as dynamic. At runtime, `dotenvx.__version__` reads the
+installed distribution metadata. `Cargo.lock` is generated from
+`Cargo.toml`.
 
-The `dotenvx-primitives` dependency version in `Cargo.toml` is independent. It
-should identify the crate release that this Python package embeds.
+After changing the version, refresh the lockfile:
+
+```sh
+cargo check
+```
+
+The `dotenvx-primitives` dependency version is independent. Change it only
+when this package should embed a newer primitives release.
 
 ## Publishing
 
@@ -53,5 +62,4 @@ git tag v0.0.0
 git push origin v0.0.0
 ```
 
-The tag version must match `pyproject.toml`, `Cargo.toml`, and
-`src/dotenvx/__version__.py`.
+The tag version must match `Cargo.toml`.

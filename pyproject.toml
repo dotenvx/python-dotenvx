@@ -4,7 +4,7 @@ build-backend = "maturin"
 
 [project]
 name = "python-dotenvx"
-version = "2.0.0"
+dynamic = ["version"]
 description = "a secure dotenv–from the creator of `dotenv`"
 readme = "README.md"
 requires-python = ">=3.8"
