@@ -5,6 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
+*.pyd
+*.dylib
 
 # Distribution / packaging
 .Python
@@ -73,6 +75,7 @@ docs/_build/
 
 # PyBuilder
 target/
+.tmp-publish/
 
 # Jupyter Notebook
 .ipynb_checkpoints

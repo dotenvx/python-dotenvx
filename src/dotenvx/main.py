@@ -1,92 +1,126 @@
 import os
-import json
-import shutil
-import subprocess
-import argparse
+from pathlib import Path
+from typing import Dict, List, Optional, TextIO, Tuple, Union
 
-from dotenvx import __file__ as package_path
+from ._native import parse_dotenv
 
-ERROR_MISSING_BINARY = "[MISSING_BINARY] missing dotenvx binary\n[MISSING_BINARY] https://github.com/dotenvx/dotenvx/issues/576"
+StrPath = Union[str, os.PathLike]
 
-def load_dotenvx(
-        dotenv_path=None,
-        override=False
-):
-    output = dotenvx_get(
+
+def find_dotenv(
+        filename: str = ".env",
+        raise_error_if_not_found: bool = False,
+        usecwd: bool = False
+) -> str:
+    """Find ``filename`` by walking from the current directory toward root."""
+    del usecwd  # The package intentionally uses cwd for predictable discovery.
+    directory = Path.cwd()
+
+    for candidate_directory in (directory, *directory.parents):
+        candidate = candidate_directory / filename
+        if candidate.is_file():
+            return str(candidate)
+
+    if raise_error_if_not_found:
+        raise IOError("File not found")
+    return ""
+
+
+def _source(
+        dotenv_path: Optional[StrPath],
+        stream: Optional[TextIO],
+        encoding: Optional[str]
+) -> Tuple[str, Optional[Path]]:
+    if stream is not None:
+        return stream.read(), None
+
+    path = Path(dotenv_path) if dotenv_path is not None else Path(find_dotenv())
+    if not str(path) or not path.is_file():
+        return "", None
+    return path.read_text(encoding=encoding or "utf-8"), path
+
+
+def _key_files(path: Optional[Path]) -> List[str]:
+    if path is None:
+        return []
+
+    candidates = [path.with_name(f"{path.name}.keys")]
+    if path.name != ".env":
+        candidates.append(path.with_name(".env.keys"))
+    return [str(candidate) for candidate in candidates if candidate.is_file()]
+
+
+def _parse(
+        dotenv_path: Optional[StrPath] = None,
+        stream: Optional[TextIO] = None,
+        override: bool = False,
+        encoding: Optional[str] = "utf-8"
+) -> Tuple[Dict[str, str], Dict[str, str], bool]:
+    source, path = _source(dotenv_path, stream, encoding)
+    if path is None and not source:
+        return {}, {}, False
+
+    parsed, injected = parse_dotenv(
+        source,
+        dict(os.environ),
+        override,
+        _key_files(path),
+    )
+    return parsed, injected, bool(parsed)
+
+
+def dotenv_values(
+        dotenv_path: Optional[StrPath] = None,
+        stream: Optional[TextIO] = None,
+        verbose: bool = False,
+        interpolate: bool = True,
+        encoding: Optional[str] = "utf-8"
+) -> Dict[str, str]:
+    """Parse a dotenv source without changing ``os.environ``."""
+    del verbose, interpolate
+    parsed, _, _ = _parse(
         dotenv_path=dotenv_path,
-        override=override
+        stream=stream,
+        override=True,
+        encoding=encoding,
     )
+    return parsed
 
-    try:
-        parsed = json.loads(output)
-        for key, value in parsed.items():
-            os.environ[key] = value
-        return parsed
-    except Exception as e:
-        raise RuntimeError(f"Failed to parse dotenvx output: {e}")
 
-def dotenvx_get(
-        dotenv_path=None,
-        override=False
-):
-    binpath = binary()
-    cmd = [binpath, "get", "-pp"]
+def load_dotenv(
+        dotenv_path: Optional[StrPath] = None,
+        stream: Optional[TextIO] = None,
+        verbose: bool = False,
+        override: bool = False,
+        interpolate: bool = True,
+        encoding: Optional[str] = "utf-8"
+) -> bool:
+    """Load dotenv values into ``os.environ`` using native Rust primitives."""
+    del verbose, interpolate
 
-    if dotenv_path:
-        cmd += ["-f", dotenv_path]
-    if override:
-        cmd.append("--overload")
-
-    output = subprocess.run(
-        cmd,
-        capture_output=True,
-        text=True,
-        check=True
-    )
-    return output.stdout.strip()
-
-def binary():
-    candidates = [
-        os.path.join(os.path.dirname(__file__), "bin", "dotenvx"),  # package-local
-        os.path.join(os.getcwd(), "bin", "dotenvx"),                # project-local
-        shutil.which("dotenvx")                                     # global/system
-    ]
-
-    for candidate in candidates:
-        if candidate and os.path.isfile(candidate) and os.access(candidate, os.X_OK):
-            if is_stub_file(candidate):
-                continue
-            return candidate
-
-    print("[MISSING_BINARY] missing dotenvx binary")
-    print("[MISSING_BINARY] https://github.com/dotenvx/dotenvx/issues/576")
-    raise SystemExit(1)
-
-def is_stub_file(path, max_stub_size=1024):
-    try:
-        return os.path.getsize(path) < max_stub_size
-    except OSError:
+    if os.environ.get("PYTHON_DOTENV_DISABLED", "").lower() in {
+        "1", "true", "t", "yes", "y"
+    }:
         return False
 
-def postinstall():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--os", help="Override OS", default="")
-    parser.add_argument("--arch", help="Override architecture", default="")
-    args = parser.parse_args()
+    _, injected, found = _parse(
+        dotenv_path=dotenv_path,
+        stream=stream,
+        override=override,
+        encoding=encoding,
+    )
+    os.environ.update(injected)
+    return found
 
-    bin_dir = os.path.join(os.path.dirname(__file__), "bin")
-    os.makedirs(bin_dir, exist_ok=True)
 
-    url = f"https://dotenvx.sh?directory={bin_dir}&force=true"
-    if args.os:
-        url += f"&os={args.os}"
-    if args.arch:
-        url += f"&arch={args.arch}"
-
-    try:
-        subprocess.run(
-            ["sh", "-c", f'curl -sfS "{url}" | sh'],
-            check=True
-        )
-    except subprocess.CalledProcessError as e:
-        raise SystemExit(e.returncode)
+def load_dotenvx(
+        dotenv_path: Optional[StrPath] = None,
+        override: bool = False
+) -> Dict[str, str]:
+    """Backward-compatible dotenvx loader returning the parsed mapping."""
+    parsed, injected, _ = _parse(
+        dotenv_path=dotenv_path,
+        override=override,
+    )
+    os.environ.update(injected)
+    return parsed
