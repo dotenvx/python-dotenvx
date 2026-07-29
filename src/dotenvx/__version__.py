@@ -1,5 +1,5 @@
 __title__ = "python-dotenvx"
-__description__ = "[dotenvx.com] a better dotenv–from the creator of `dotenv`"
+__description__ = "a secure dotenv–from the creator of `dotenv`"
 __url__ = "https://github.com/dotenvx/python-dotenvx"
 __version__ = "2.0.0"
 __author__ = "dotenv"
