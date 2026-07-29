@@ -4,8 +4,8 @@ build-backend = "maturin"
 
 [project]
 name = "python-dotenvx"
-version = "2.0.0"
-description = "A better dotenv, backed by dotenvx Rust primitives"
+dynamic = ["version"]
+description = "a secure dotenv–from the creator of `dotenv`"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "BSD-3-Clause" }
