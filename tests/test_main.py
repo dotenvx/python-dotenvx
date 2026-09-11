@@ -77,3 +77,17 @@ def test_load_dotenv_decrypts_with_neighboring_key_file(tmp_path, monkeypatch):
 
     assert load_dotenv(env_path) is True
     assert os.environ["SECRET"] == "World"
+
+
+def test_load_dotenv_decrypts_with_process_environment_only(tmp_path, monkeypatch):
+    env_path = tmp_path / ".env"
+    env_path.write_text(
+        f"DOTENV_PUBLIC_KEY={PUBLIC_KEY}\nSECRET={ENCRYPTED_WORLD}\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("DOTENV_PRIVATE_KEY", PRIVATE_KEY)
+    monkeypatch.delenv("SECRET", raising=False)
+
+    assert not (tmp_path / ".env.keys").exists()
+    assert load_dotenv(env_path) is True
+    assert os.environ["SECRET"] == "World"
