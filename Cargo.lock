@@ -170,9 +170,9 @@ dependencies = [
 
 [[package]]
 name = "dotenvx-primitives"
-version = "3.0.0"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3437345180bc51f1355f184583a394ce06ca94ddf4f37859f6e6a42cfa29db2c"
+checksum = "45025793b0696ea6b3910921a3b0264781e11b6b9be8a861d6c113e78efab18b"
 dependencies = [
  "base64",
  "ecies",
@@ -519,7 +519,7 @@ dependencies = [
 
 [[package]]
 name = "python-dotenvx-native"
-version = "2.0.0"
+version = "2.0.1"
 dependencies = [
  "dotenvx-primitives",
  "pyo3",

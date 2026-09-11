@@ -1,6 +1,6 @@
 [package]
 name = "python-dotenvx-native"
-version = "2.0.0"
+version = "2.0.1"
 edition = "2021"
 rust-version = "1.83"
 publish = false
@@ -11,5 +11,5 @@ crate-type = ["cdylib"]
 path = "rust/lib.rs"
 
 [dependencies]
-dotenvx-primitives = "=3.0.0"
+dotenvx-primitives = "=3.0.1"
 pyo3 = { version = "0.29", features = ["abi3-py38"] }
