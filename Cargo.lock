@@ -170,9 +170,9 @@ dependencies = [
 
 [[package]]
 name = "dotenvx-primitives"
-version = "2.1.2"
+version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d968bcad44f3ac36256fe6dcf4f21a9a0a19a38769ab73e0081575f4e0cc910"
+checksum = "3437345180bc51f1355f184583a394ce06ca94ddf4f37859f6e6a42cfa29db2c"
 dependencies = [
  "base64",
  "ecies",
