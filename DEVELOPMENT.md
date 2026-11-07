@@ -2,7 +2,8 @@
 
 `python-dotenvx` is a mixed Python/Rust project. Maturin compiles the PyO3
 extension in `rust/lib.rs` and places it inside the `dotenvx` Python package.
-The extension uses the published `dotenvx-primitives` crate.
+The extension uses the private `dotenvx-ll` loader, which depends on published
+`dotenvx-primitives`.
 
 ## Local setup
 
@@ -41,8 +42,8 @@ After changing the version, refresh the lockfile:
 cargo check
 ```
 
-The `dotenvx-primitives` dependency version is independent. Change it only
-when this package should embed a newer primitives release.
+The shared loader owns the `dotenvx-primitives` dependency version. Update it
+in Forge when the consumers should embed a newer primitives release.
 
 ## Security audits
 
@@ -83,3 +84,15 @@ git push origin v0.0.0
 ```
 
 The tag version must match `Cargo.toml`.
+
+## Shared loader checkout
+
+The native extension currently depends on private `dotenvx-ll` through a local
+Cargo path. Keep this checkout beside `forge/`, which contains `dotenvx-ll/`.
+It embeds published primitives 4.x through that loader, instead of depending on
+primitives directly. Rebuild the extension after changing the loader.
+
+These are local development paths, not a finished release-distribution setup.
+Standalone CI/source-package builds need private access to the loader source
+before publishing. Do not publish `dotenvx-ll` publicly; compiled platform gems
+and wheels can embed it without distributing its Rust source.
