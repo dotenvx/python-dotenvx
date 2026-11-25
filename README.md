@@ -1,85 +1,98 @@
-[![dotenvx](https://dotenvx.com/better-banner.png)](https://dotenvx.com)
+[![dotenvx](https://dotenvx.com/banner.png?v2)](https://dotenvx.com)
 
-*a better dotenv*–from the creator of [`dotenv`](https://github.com/motdotla/dotenv).
+*A secure dotenv*–from the creator of [`dotenv`](https://github.com/motdotla/dotenv).
 
-* run anywhere (cross-platform)
-* multi-environment
-* encrypted envs
+* Encrypt
+* Commit
+* Ship
 
-&nbsp;
+[Install](https://dotenvx.com/docs/install) · [Quickstart](https://dotenvx.com/docs/quickstart)
 
+## Quickstart
 
-### Quickstart [![PyPI version](https://badge.fury.io/py/python-dotenvx.svg)](http://badge.fury.io/py/python-dotenvx)
-
-Keep the familiar `load_dotenv()` entry point with dotenvx loading semantics.
+With [uv](https://docs.astral.sh/uv/getting-started/installation/) installed, create a project and add `python-dotenvx`.
 
 ```sh
-pip install python-dotenvx
+uv init hello-dotenvx
+cd hello-dotenvx
+uv add python-dotenvx
 ```
 
-The wheel includes native dotenvx Rust primitives. No dotenvx executable or
-post-install download is required.
+Create these two files in the project directory.
+
+`.env`
+
+```dotenv
+HELLO=World
+```
+
+`index.py`
 
 ```python
-# main.py
 import os
 from dotenvx import load_dotenv
 
-load_dotenv()  # take environment variables from .env
+load_dotenv()
 
-print(os.getenv("S3_BUCKET"))
+print(f"Hello {os.environ['HELLO']}")
 ```
 
-You can also parse values without changing the environment:
+Run the script from that directory.
 
-```python
-from dotenvx import dotenv_values
-
-values = dotenv_values(".env")
+```sh
+uv run index.py
 ```
 
-Encrypted values are decrypted using `DOTENV_PRIVATE_KEY` from the environment
-or a neighboring `.env.keys` file.
+The script prints `Hello World`.
 
 &nbsp;
 
-### Loading errors and policy
+## Usage
 
-The main entry points use the shared `dotenvx-ll` Rust loader. Errors are printed
-to stderr and available values still load by default. Use `strict=True`, or set
-strictness in the current directory's Dotenvxfile, to raise before changing
-`os.environ`. Dotenvxfile required/type/file validation is shared with the CLI.
-Ignore selected diagnostics with `ignore=["DECRYPTION_FAILED"]`.
+*Install* dotenvx.
 
-The loader returns redaction metadata without changing application values;
-the adapter does not install application-output redaction hooks.
-
-### Deliberately smaller Python API
-
-`load_dotenv()` and `dotenv_values()` accept an optional file path, or `stream=`
-for text input. Loading supports `override=`, `strict=`, and `ignore=`. Options
-after the file path are keyword-only. `load_dotenvx(path, override=False)` remains
-available and returns the resolved mapping after loading it.
-
-Parsing, expansion, UTF-8 file decoding, and local key discovery belong to the
-shared Rust loader. Python no longer implements a second parser for bare keys
-or rewrites dollar signs to disable interpolation. Bare keys without `=` are
-ignored; use `KEY=` for an empty string. Single quotes preserve literal dollars.
-
-The legacy `interpolate`, `encoding`, and `verbose` options, and the no-op
-`find_dotenv(usecwd=...)` option, are no longer supported. `find_dotenv()` still
-searches upward from the current directory.
-
-### Shared file selection
-
-The Rust loader owns file discovery, directory expansion, conventions, and
-key-based filename inference. Pass one path or a list of paths; use
-`convention="nextjs"` or `convention="flow"`, and `key_files="custom.keys"` when
-needed. The same file-selection and error-ignore environment variables used by
-the CLI are supported. `find_dotenv()` delegates upward searching to Rust.
-
-```python
-load_dotenv(convention="nextjs")
-load_dotenv([".env.production", ".env"])
-load_dotenv("app", key_files="shared/.env.keys")
+```sh
+$ curl -sfS https://dotenvx.sh | sh
+◈ installed (2.38.2:/usr/local/bin/dotenvx)
 ```
+
+*Encrypt* your secrets in `.env` files. The values become ciphertext and only your private key can unlock them.
+
+```sh
+$ dotenvx encrypt
+◈ encrypted .env (039 BCA) via .env.keys ⛉
+```
+
+*Commit* your encrypted `.env` files with your code. It's safe. Now you can securely share secrets through git.
+
+```sh
+$ git add .env
+$ git commit -m "encrypt .env"
+```
+
+*Ship* your code and secrets together. Dotenvx uses your private key to decrypt and inject your secrets just-in-time to your code.
+
+```sh
+$ python index.py
+⟐ injected env (2) from .env (039 BCA) via .env.keys ⛉
+```
+
+&nbsp;
+
+## Design
+
+Three widely used and proven primitives make up Dotenvx's design. Git, .env, and secp256k1.
+
+We chose git because it is the best way to deliver digital goods. It is the container ship of the digital world. All code travels on its ships. Why not secrets? Why invent an inferior secrets delivery mechanism when the world class one is right there at your fingertips.
+
+We chose .env because it is the open standard for loading secrets into code. It represents environment variables, the core primitive that all secrets end up injected into at runtime of code.
+
+Lastly, we needed to choose an encryption algorithm. Encryption of the values inside the .env file would allow us to place those values with code, leveraging git's distribution advantages while still following the twelve-factor config – by separating the decryption key from the code (environment).
+
+It was important that we choose a proven, simple, asymmetric standard with small keys. We chose secp256k1, battle-tested by Bitcoin for more than seventeen years. We made cryptography an opinionated choice so developers wouldn't have to. Encryption just worked.
+
+The result is a system built entirely from primitives, developers already understand, and infrastructure they already use. Secrets can travel with code without becoming part of the code. Git distributes them, .env defines how apps consume them, and secp256k1 keeps their values unreadable. The kicker, all this works by setting a single private key on your infrastructure - no more risky async coordination of secrets, no more centralized downtime risk. Your secrets are always just there with your code, ready to be unlocked at runtime.
+
+[Read the whitepaper →](https://dotenvx.com/dotenvx.pdf?v=README)
+
+&nbsp;

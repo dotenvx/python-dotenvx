@@ -75,7 +75,11 @@ def test_find_dotenv_walks_to_parent(tmp_path, monkeypatch):
     assert find_dotenv() == str(env_path)
 
 
-def test_load_dotenv_decrypts_with_neighboring_key_file(tmp_path, monkeypatch):
+@pytest.mark.parametrize("explicit_path", [False, True], ids=["discovered", "absolute"])
+def test_load_dotenv_decrypts_with_neighboring_key_file(
+    tmp_path, monkeypatch, capsys, explicit_path
+):
+    monkeypatch.chdir(tmp_path)
     env_path = tmp_path / ".env"
     env_path.write_text(
         f"DOTENV_PUBLIC_KEY={PUBLIC_KEY}\nSECRET={ENCRYPTED_WORLD}\n",
@@ -86,12 +90,30 @@ def test_load_dotenv_decrypts_with_neighboring_key_file(tmp_path, monkeypatch):
         encoding="utf-8",
     )
     monkeypatch.delenv("SECRET", raising=False)
+    monkeypatch.delenv("DOTENV_PRIVATE_KEY", raising=False)
+    monkeypatch.delenv("DOTENV_PUBLIC_KEY", raising=False)
 
-    assert load_dotenv(env_path) is True
+    assert load_dotenv(env_path if explicit_path else None) is True
     assert os.environ["SECRET"] == "World"
+    assert capsys.readouterr().err == "⟐ injected env (2) from .env (03D A6A) via .env.keys ⛉\n"
 
 
-def test_load_dotenv_decrypts_with_process_environment_only(tmp_path, monkeypatch):
+def test_plaintext_summary_omits_unused_key_file(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("SECRET", raising=False)
+    (tmp_path / ".env").write_text("SECRET=World\n", encoding="utf-8")
+    (tmp_path / ".env.keys").write_text(
+        f"DOTENV_PRIVATE_KEY={PRIVATE_KEY}\n",
+        encoding="utf-8",
+    )
+
+    assert load_dotenv() is True
+    assert os.environ["SECRET"] == "World"
+    assert capsys.readouterr().err == "⟐ injected env (1) from .env\n"
+
+
+def test_load_dotenv_decrypts_with_process_environment_only(tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
     env_path = tmp_path / ".env"
     env_path.write_text(
         f"DOTENV_PUBLIC_KEY={PUBLIC_KEY}\nSECRET={ENCRYPTED_WORLD}\n",
@@ -103,6 +125,7 @@ def test_load_dotenv_decrypts_with_process_environment_only(tmp_path, monkeypatc
     assert not (tmp_path / ".env.keys").exists()
     assert load_dotenv(env_path) is True
     assert os.environ["SECRET"] == "World"
+    assert capsys.readouterr().err == "⟐ injected env (2) from .env (03D A6A) via Env ⛉\n"
 
 
 def test_missing_file_warns_and_continues(tmp_path, monkeypatch, capsys):
@@ -127,15 +150,15 @@ def test_explicit_strictness_raises_before_mutating_environment(tmp_path, monkey
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("LL_VALUE", raising=False)
     (tmp_path / ".env").write_text("LL_VALUE=not-loaded\nLL_PORT=invalid\n")
-    (tmp_path / "Dotenvxfile").write_text('env "LL_PORT", type: "port"')
+    (tmp_path / "Dotenv.toml").write_text('env."LL_PORT" = { type = "port" }')
     with pytest.raises(RuntimeError, match="INVALID_ENV"):
         load_dotenv(strict=True)
     assert "LL_VALUE" not in os.environ
 
 
-def test_dotenvxfile_strictness_applies_before_reading(tmp_path, monkeypatch):
+def test_dotenvtoml_strictness_applies_before_reading(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    (tmp_path / "Dotenvxfile").write_text("strict true")
+    (tmp_path / "Dotenv.toml").write_text("strict = true")
     with pytest.raises(RuntimeError, match="MISSING_ENV_FILE"):
         load_dotenv()
 
@@ -144,7 +167,7 @@ def test_policy_validation_warns_by_default(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("LL_VALUE", raising=False)
     (tmp_path / ".env").write_text("LL_VALUE=loaded")
-    (tmp_path / "Dotenvxfile").write_text('env "LL_REQUIRED", required: true')
+    (tmp_path / "Dotenv.toml").write_text('env."LL_REQUIRED" = { required = true }')
     assert load_dotenv() is True
     assert os.environ["LL_VALUE"] == "loaded"
     assert "INVALID_ENV" in capsys.readouterr().err
@@ -154,23 +177,23 @@ def test_ignored_errors_do_not_raise_under_policy_strictness(tmp_path, monkeypat
     monkeypatch.chdir(tmp_path)
     monkeypatch.delenv("LL_VALUE", raising=False)
     (tmp_path / ".env").write_text("LL_VALUE=loaded")
-    (tmp_path / "Dotenvxfile").write_text('strict true\nenv "LL_REQUIRED", required: true')
+    (tmp_path / "Dotenv.toml").write_text('strict = true\nenv."LL_REQUIRED" = { required = true }')
     assert load_dotenv(ignore=["INVALID_ENV"]) is True
     assert os.environ["LL_VALUE"] == "loaded"
-    assert capsys.readouterr().err == ""
+    assert capsys.readouterr().err.startswith("⟐ injected env (1) from ")
 
 
 def test_file_policy_strictness_raises(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     (tmp_path / ".env").write_text("LL_VALUE=not-loaded")
-    (tmp_path / "Dotenvxfile").write_text('file ".env" do\n strict true\n env "LL_REQUIRED", required: true\nend')
+    (tmp_path / "Dotenv.toml").write_text('files.".env".strict = true\nfiles.".env".env."LL_REQUIRED" = { required = true }')
     with pytest.raises(RuntimeError, match="INVALID_ENV"):
         load_dotenv()
 
 
 def test_native_loader_returns_redaction_metadata_not_redacted_values(tmp_path):
     (tmp_path / ".env").write_text("LL_SECRET=real-value")
-    (tmp_path / "Dotenvxfile").write_text('env "LL_SECRET", redacted: true')
+    (tmp_path / "Dotenv.toml").write_text('env."LL_SECRET" = { redacted = true }')
     result = json.loads(load_env(json.dumps({"cwd": str(tmp_path)})))
     assert result["secrets"] == ["real-value"]
     assert result["values"] == {"LL_SECRET": "real-value"}
@@ -186,11 +209,11 @@ def test_stream_loading_uses_shared_rust_parsing(tmp_path, monkeypatch):
 
 
 def test_malformed_policy_preserves_structured_error_code(tmp_path):
-    (tmp_path / "Dotenvxfile").write_text("not_a_setting true")
+    (tmp_path / "Dotenv.toml").write_text("not_a_setting true")
     previous = dict(os.environ)
     result = json.loads(load_env(json.dumps({"cwd": str(tmp_path)})))
     assert result["fatal"] is True
-    assert result["diagnostics"][0]["code"] == "MALFORMED_DOTENVXFILE"
+    assert result["diagnostics"][0]["code"] == "MALFORMED_DOTENV_TOML"
     assert dict(os.environ) == previous
 
 
@@ -219,7 +242,7 @@ def test_shared_nextjs_selection_and_optional_files(tmp_path, monkeypatch, capsy
     (tmp_path / ".env").write_text("LL_VALUE=base")
     assert load_dotenv(convention="nextjs") is True
     assert os.environ["LL_VALUE"] == "first"
-    assert capsys.readouterr().err == ""
+    assert capsys.readouterr().err.startswith("⟐ injected env (1) from ")
 
 
 def test_shared_convention_environment_and_explicit_precedence(tmp_path, monkeypatch):
@@ -256,7 +279,7 @@ def test_shared_key_based_file_inference(tmp_path, monkeypatch):
 
 def test_explicit_key_files_are_forwarded_to_rust(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
-    (tmp_path / ".env").write_text(f"LL_SECRET={ENCRYPTED_WORLD}")
+    (tmp_path / ".env").write_text(f"DOTENV_PUBLIC_KEY={PUBLIC_KEY}\nLL_SECRET={ENCRYPTED_WORLD}")
     (tmp_path / "custom.keys").write_text(f"DOTENV_PRIVATE_KEY={PRIVATE_KEY}")
     assert load_dotenv(".env", key_files="custom.keys") is True
     assert os.environ["LL_SECRET"] == "World"
@@ -287,7 +310,7 @@ def test_shared_ignore_environment_configuration(tmp_path, monkeypatch, capsys):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv("DOTENV_IGNORE", "MISSING_ENV_FILE")
     assert load_dotenv(strict=True) is False
-    assert capsys.readouterr().err == ""
+    assert capsys.readouterr().err.startswith("⟐ injected env (0)")
 
 
 def test_invalid_convention_uses_shared_diagnostic(tmp_path, monkeypatch):

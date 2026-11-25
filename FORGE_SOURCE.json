@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/dotenvx/forge",
+  "commit": "f5ffbbc0fa75acf56d69db8e39528b37c78f76b7",
+  "tag": "python-v3.1.6",
+  "version": "3.1.6",
+  "wheels": {
+    "python_dotenvx-3.1.6-cp38-abi3-macosx_10_12_x86_64.whl": "240a2ba76d9a9e09b5ca3a0e0977118e67760e446fc16d914b8a18286055fad7",
+    "python_dotenvx-3.1.6-cp38-abi3-macosx_11_0_arm64.whl": "d47e8713ffd65c28f98df7653ad242fc7e6ec3387774a0893a9bc461c8eb6663",
+    "python_dotenvx-3.1.6-cp38-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl": "00058f490b443238b4be63a3dc5db45b4c3b61d73bd9da337c0c24035ccd6ed1",
+    "python_dotenvx-3.1.6-cp38-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl": "2f5ce438131868bc21ae5de7bb66410e4690227f7544dfc3445d17d05b4fb461",
+    "python_dotenvx-3.1.6-cp38-abi3-win_amd64.whl": "d853f7c699d264bb409ee5e00003e8abe3de738d8254b0cc0f69805dc2e594e4"
+  }
+}
